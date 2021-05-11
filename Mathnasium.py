@@ -80,7 +80,7 @@ class Radius:
                     n_lc.append(z)
                     n_days.append(int(str(diff).split(' ')[0]))
                 # Checks if the student needs a 90 day cp
-                elif len(r) > 2 and int(r[0]) >= 90:
+                elif not comingup and len(r) > 2 and int(r[0]) >= 90:
                     nom.append(n)
                     n_lc.append(z)
                     n_days.append(int(str(diff).split(' ')[0]))
