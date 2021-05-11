@@ -12,10 +12,11 @@ class Radius:
         self.enrolled = len(self.sr['Student Name'])
         self.today = date.today()
         # AtHome Variables
-        self.athome = home
-        self.home = pd.read_excel(self.athome)
-        self.home['Name'] = self.home['First Name'] + ' ' + self.home['Last Name']
-        self.home = self.home.drop(['Archivable Students', 'First Name', 'Last Name'], axis=1)
+        if home != "":
+            self.athome = home
+            self.home = pd.read_excel(self.athome)
+            self.home['Name'] = self.home['First Name'] + ' ' + self.home['Last Name']
+            self.home = self.home.drop(['Archivable Students', 'First Name', 'Last Name'], axis=1)
 
     # Finds all the students that haven't been in for at least two weeks
     def attendance(self, debug=False):
@@ -56,7 +57,7 @@ class Radius:
                 return tw
 
     # Finds all students that need a 90 day CP
-    def ndcp(self, debug=False):
+    def ndcp(self, comingup = False, debug=False):
         nom = []
         n_lc = []
         n_days = []
@@ -73,8 +74,13 @@ class Radius:
                 r = str(diff).split(' ')
                 if debug:
                     print(r)
+                # Checks if a student will need a ndcp within the next ten days
+                if comingup and len(r) > 2 and 80 <= int(r[0]) < 90:
+                    nom.append(n)
+                    n_lc.append(z)
+                    n_days.append(int(str(diff).split(' ')[0]))
                 # Checks if the student needs a 90 day cp
-                if len(r) > 2 and int(r[0]) >= 90:
+                elif len(r) > 2 and int(r[0]) >= 90:
                     nom.append(n)
                     n_lc.append(z)
                     n_days.append(int(str(diff).split(' ')[0]))
@@ -180,7 +186,7 @@ class Radius:
             else:
                 ratio = data['Skills Mastered'][i] / data.Attendances[i]
                 # Checks if the student is on athome
-                if fnom + ' ' + lnom.split('-')[0] in self.home['Name']:
+                if self.df['Delivery'][i] == "@home":
                     if ratio < htol:
                         check.append(data.Student[i])
                         ch_att.append(data.Attendances[i])
@@ -217,7 +223,7 @@ class Radius:
                         else:
                             m += n.split(' ')[0] + " Recent Assessment "
                 # Checks if the student is on athome
-                if fnn + ' ' + lnn.split('-')[0] in self.home['Name']:
+                if n in self.df[self.df['Delivery'] == "@home"]['Student Name']:
                     if len(m) > 0:
                         m += ", on athome "
                     else:
